@@ -7,23 +7,31 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MapActivity extends AppCompatActivity implements
-        CustomLocationListener.LocationCallback {
+        CustomLocationListener.LocationCallback, OnMapReadyCallback {
 
     private static final int REQUEST_LOCATION_CODE = 1001;
-    private TextView textView;
+    private SupportMapFragment mapFragment;
+    private GoogleMap mGoogleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        textView = findViewById(R.id.text);
-
-        new CustomLocationListener(this, getLifecycle(), this);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -35,14 +43,22 @@ public class MapActivity extends AppCompatActivity implements
 
     @Override
     public void newLocationReceived(Location location) {
-        String formattedDate = SimpleDateFormat.getDateTimeInstance()
-                .format(Calendar.getInstance().getTime());
 
-        String format = String.format("lat: %s\nlong: %s\ndate: %s",
-                location.getLatitude(),
-                location.getLongitude(),
-                formattedDate);
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-        textView.setText(format);
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+
+        mGoogleMap.addMarker(markerOptions);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 21f);
+        mGoogleMap.moveCamera(cameraUpdate);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mGoogleMap = googleMap;
+
+        new CustomLocationListener(this, getLifecycle(), this);
     }
 }

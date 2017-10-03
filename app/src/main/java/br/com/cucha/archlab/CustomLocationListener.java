@@ -63,7 +63,7 @@ public class CustomLocationListener implements LifecycleObserver, LocationListen
         int permission = ContextCompat.checkSelfPermission(mContext, finLocationPermission);
 
         if(permission == PackageManager.PERMISSION_GRANTED)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 1f, this);
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, .1f, this);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ArchLab</string>
+    <string name="maps_key">your id</string>
 </resources>
