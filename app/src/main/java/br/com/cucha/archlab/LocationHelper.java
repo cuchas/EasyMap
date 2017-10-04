@@ -17,25 +17,28 @@ import android.support.v4.content.ContextCompat;
  * Created by eduardo on 10/3/17.
  */
 
-public class CustomLocationListener implements LifecycleObserver, LocationListener {
+public class LocationHelper implements LifecycleObserver, LocationListener {
 
     private final LocationManager mLocationManager;
     private final LocationCallback mCallback;
     private final Context mContext;
     private final Lifecycle mLifeCycle;
     private static String finLocationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+    private final LocationViewModel mViewModel;
 
     interface LocationCallback {
-
         void noLocationPermission();
-
-        void newLocationReceived(Location location);
     }
 
-    public CustomLocationListener(Context context, Lifecycle lifecycle, LocationCallback callback) {
+    public LocationHelper(Context context,
+                          Lifecycle lifecycle,
+                          LocationCallback callback,
+                          LocationViewModel viewModel) {
+
         mContext = context;
         mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         mCallback = callback;
+        mViewModel = viewModel;
         mLifeCycle = lifecycle;
         mLifeCycle.addObserver(this);
     }
@@ -51,10 +54,10 @@ public class CustomLocationListener implements LifecycleObserver, LocationListen
 
         Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        if(location == null || mCallback == null)
+        if(location == null)
             return;
 
-        mCallback.newLocationReceived(location);
+        mViewModel.setLocation(location);
     }
 
     @SuppressLint("MissingPermission")
@@ -73,9 +76,7 @@ public class CustomLocationListener implements LifecycleObserver, LocationListen
 
     @Override
     public void onLocationChanged(Location location) {
-        if(mCallback == null) return;
-
-        mCallback.newLocationReceived(location);
+        mViewModel.setLocation(location);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

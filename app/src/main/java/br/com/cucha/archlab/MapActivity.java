@@ -1,11 +1,11 @@
 package br.com.cucha.archlab;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModelProviders;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -15,23 +15,35 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
 public class MapActivity extends AppCompatActivity implements
-        CustomLocationListener.LocationCallback, OnMapReadyCallback {
+        LocationHelper.LocationCallback, OnMapReadyCallback {
 
     private static final int REQUEST_LOCATION_CODE = 1001;
-    private SupportMapFragment mapFragment;
+    private SupportMapFragment mMapFragment;
     private GoogleMap mGoogleMap;
+    private MapModel mMapModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mMapFragment.getMapAsync(this);
+
+        mMapModel = ViewModelProviders.of(this).get(MapModel.class);
+        mMapModel.getLocation().observe(this, location -> {
+
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+
+            mGoogleMap.addMarker(markerOptions);
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
+            mGoogleMap.moveCamera(cameraUpdate);
+        });
     }
 
     @Override
@@ -42,23 +54,9 @@ public class MapActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void newLocationReceived(Location location) {
-
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-
-        mGoogleMap.addMarker(markerOptions);
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 21f);
-        mGoogleMap.moveCamera(cameraUpdate);
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
 
-        new CustomLocationListener(this, getLifecycle(), this);
+        new LocationHelper(this, getLifecycle(), this, mMapModel);
     }
 }
