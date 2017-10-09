@@ -1,25 +1,29 @@
 package br.com.cucha.archlab;
 
 import android.Manifest;
-import android.arch.lifecycle.ViewModel;
+import android.app.AlertDialog;
+import android.app.Service;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
-public class MapActivity extends AppCompatActivity implements LocationHelper.LocationCallback {
+public class MainActivity extends AppCompatActivity implements LocationHelper.LocationCallback {
 
     private static final int REQUEST_LOCATION_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_main);
 
         FragmentManager fm = getSupportFragmentManager();
 
@@ -99,5 +103,19 @@ public class MapActivity extends AppCompatActivity implements LocationHelper.Loc
         String[] permissions = new String[] { Manifest.permission.ACCESS_FINE_LOCATION };
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_LOCATION_CODE);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent intent = CurrentLocationService.newStopIntent(this);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ContextCompat.startForegroundService(this, CurrentLocationService.newIntent(this));
     }
 }

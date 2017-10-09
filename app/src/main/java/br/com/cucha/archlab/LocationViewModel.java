@@ -19,14 +19,11 @@ import java.util.List;
 public class LocationViewModel extends AndroidViewModel {
     private final LocationDB db;
     private LiveData<List<LocationInfo>> mLocationList = new MutableLiveData<>();
-    static String DBNAME = "location";
 
     public LocationViewModel(Application application) {
         super(application);
 
-        db = Room.databaseBuilder(application, LocationDB.class, DBNAME)
-                .fallbackToDestructiveMigration()
-                .build();
+        db = DBHelper.getDBInstance(application);
 
         mLocationList = db.locationInfoDAO().getLocationList();
     }
@@ -45,12 +42,5 @@ public class LocationViewModel extends AndroidViewModel {
         Runnable runnable = () -> db.locationInfoDAO().insert(locationInfo);
 
         new Thread(runnable).start();
-
-//        List<Location> locationList = getLocationList().getValue();
-
-        //noinspection ConstantConditions
-//        locationList.add(location);
-
-//        getLocationList().setValue(locationList);
     }
 }
