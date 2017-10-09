@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">ArchLab</string>
     <string name="maps_key">your id</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="map">Map</string>
+    <string name="list">List</string>
 </resources>

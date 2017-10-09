@@ -1,49 +1,97 @@
 package br.com.cucha.archlab;
 
 import android.Manifest;
+import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
-import android.location.Location;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-public class MapActivity extends AppCompatActivity implements
-        LocationHelper.LocationCallback, OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements LocationHelper.LocationCallback {
 
     private static final int REQUEST_LOCATION_CODE = 1001;
-    private SupportMapFragment mMapFragment;
-    private GoogleMap mGoogleMap;
-    private MapModel mMapModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mMapFragment.getMapAsync(this);
+        FragmentManager fm = getSupportFragmentManager();
 
-        mMapModel = ViewModelProviders.of(this).get(MapModel.class);
-        mMapModel.getLocation().observe(this, location -> {
+        FragmentPagerAdapter pagerAdapter = new FragmentPagerAdapter(fm) {
+            @Override
+            public Fragment getItem(int position) {
 
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                Fragment fragment = null;
 
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
+                switch (position) {
+                    case 0:
+                        fragment = getMapFragment();
+                        break;
+                    case 1:
+                        fragment = getListFragment();
+                        break;
+                }
 
-            mGoogleMap.addMarker(markerOptions);
+                return fragment;
+            }
 
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
-            mGoogleMap.moveCamera(cameraUpdate);
-        });
+            @Override
+            public CharSequence getPageTitle(int position) {
+
+                String title = null;
+
+                switch (position) {
+                    case 0:
+                        title =  getString(R.string.map);
+                        break;
+                    case 1:
+                        title = getString(R.string.list);
+                        break;
+                }
+                return title;
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+        };
+
+        ViewPager vp = findViewById(R.id.view_pager_map);
+        vp.setAdapter(pagerAdapter);
+
+        TabLayout tabLayout = findViewById(R.id.tabl_map);
+        tabLayout.setupWithViewPager(vp);
+
+        LocationModel locationModel = ViewModelProviders.of(this).get(LocationModel.class);
+
+        new LocationHelper(this, getLifecycle(), this, locationModel);
+    }
+
+    private Fragment getListFragment() {
+        Fragment fragment =
+                getSupportFragmentManager().findFragmentByTag(LocationFragment.TAG);
+
+        if(fragment == null)
+            fragment = LocationFragment.newInstance(0);
+
+        return fragment;
+    }
+
+    private Fragment getMapFragment() {
+        Fragment fragment =
+                getSupportFragmentManager().findFragmentByTag(MapFragment.TAG);
+
+        if(fragment == null)
+            fragment = MapFragment.newInstance();
+
+        return fragment;
     }
 
     @Override
@@ -51,12 +99,5 @@ public class MapActivity extends AppCompatActivity implements
         String[] permissions = new String[] { Manifest.permission.ACCESS_FINE_LOCATION };
 
         ActivityCompat.requestPermissions(this, permissions, REQUEST_LOCATION_CODE);
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap = googleMap;
-
-        new LocationHelper(this, getLifecycle(), this, mMapModel);
     }
 }
