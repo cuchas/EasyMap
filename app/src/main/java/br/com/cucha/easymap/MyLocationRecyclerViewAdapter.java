@@ -1,4 +1,4 @@
-package br.com.cucha.archlab;
+package br.com.cucha.easymap;
 
 import android.arch.lifecycle.LiveData;
 import android.support.v7.widget.RecyclerView;

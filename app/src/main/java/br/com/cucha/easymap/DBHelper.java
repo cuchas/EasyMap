@@ -1,4 +1,4 @@
-package br.com.cucha.archlab;
+package br.com.cucha.easymap;
 
 import android.arch.persistence.room.Room;
 import android.content.Context;

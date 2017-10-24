@@ -1,14 +1,11 @@
-package br.com.cucha.archlab;
+package br.com.cucha.easymap;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.persistence.room.Room;
 import android.location.Location;
-import android.renderscript.Allocation;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 

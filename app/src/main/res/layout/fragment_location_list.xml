@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="br.com.cucha.archlab.LocationFragment"
+    tools:context="br.com.cucha.easymap.LocationFragment"
     tools:listitem="@layout/fragment_location" />

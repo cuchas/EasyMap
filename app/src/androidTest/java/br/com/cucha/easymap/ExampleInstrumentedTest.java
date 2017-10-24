@@ -1,4 +1,4 @@
-package br.com.cucha.archlab;
+package br.com.cucha.easymap;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

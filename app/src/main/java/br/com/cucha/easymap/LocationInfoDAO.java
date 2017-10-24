@@ -1,7 +1,6 @@
-package br.com.cucha.archlab;
+package br.com.cucha.easymap;
 
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
