@@ -9,4 +9,5 @@
     <string name="location_tracking">Location Tracking</string>
     <string name="close">close</string>
     <string name="search">Buscar</string>
+    <string name="search_list_fragment" translatable="false">searchListFragment</string>
 </resources>

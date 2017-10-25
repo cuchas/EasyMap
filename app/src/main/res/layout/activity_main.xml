@@ -18,7 +18,7 @@
             android:layout_height="wrap_content" />
 
         <android.support.design.widget.TabLayout
-            android:id="@+id/tabl_map"
+            android:id="@+id/tabl_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -39,7 +39,12 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
-        android:id="@+id/view_pager_map"
+        android:id="@+id/view_pager_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_search_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
