@@ -1,8 +1,10 @@
 package br.com.cucha.easymap;
 
 
+import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,16 +22,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements
+        OnMapReadyCallback,
+        LocationHelper.LocationCallback {
 
     public static String TAG = MapFragment.class.getName();
-    private SupportMapFragment mMapFragment;
-    private GoogleMap mGoogleMap;
-    private LocationModel mMapModel;
-
-    public MapFragment() {
-        // Required empty public constructor
-    }
+    private GoogleMap googleMap;
+    private LocationModel model;
+    private static final int REQUEST_LOCATION_CODE = 1001;
+    private LocationHelper locationHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,40 +38,48 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        mMapFragment.getMapAsync(this);
+        view.findViewById(R.id.fab_myplace_map).setOnClickListener(this::onMyPositionClick);
 
-        mMapModel = ViewModelProviders.of(getActivity()).get(LocationModel.class);
+        SupportMapFragment mapFragment =
+                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        model = ViewModelProviders.of(getActivity()).get(LocationModel.class);
+
+        locationHelper = new LocationHelper(getContext(), getLifecycle(), this, model);
 
         return view;
     }
 
+    private void onMyPositionClick(View view) {
+        locationHelper.findCurrentLocation();
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap = googleMap;
+        this.googleMap = googleMap;
 
-        mMapModel.getLocationList().observe(this, list -> {
+        model.getMapLocation().observe(this, location -> {
 
-            if(list.isEmpty())
-                return;
+            googleMap.clear();
 
-            LocationInfo location = list.get(list.size() -1);
-
-            double lat = Double.parseDouble(location.getLat());
-            double lng = Double.parseDouble(location.getLng());
-
-            LatLng latLng = new LatLng(lat, lng);
-
-            MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
-
-            mGoogleMap.addMarker(markerOptions);
-
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
-            mGoogleMap.moveCamera(cameraUpdate);
+            showOnMap(location);
         });
+    }
 
+    private void showOnMap(LocationInfo location) {
+        double lat = Double.parseDouble(location.getLat());
+        double lng = Double.parseDouble(location.getLng());
 
+        LatLng latLng = new LatLng(lat, lng);
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+
+        googleMap.addMarker(markerOptions);
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
+        googleMap.moveCamera(cameraUpdate);
     }
 
     public static MapFragment newInstance() {
@@ -79,6 +88,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         MapFragment fragment = new MapFragment();
         fragment.setArguments(args);
+
         return fragment;
+    }
+
+    @Override
+    public void noLocationPermission() {
+        String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+
+        ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_LOCATION_CODE);
     }
 }

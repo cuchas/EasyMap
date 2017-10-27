@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -14,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +24,8 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.AutocompletePredictionBufferResponse;
 import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,12 +34,11 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements
-        LocationHelper.LocationCallback,
         SearchView.OnQueryTextListener,
         OnSuccessListener<AutocompletePredictionBufferResponse>,
         OnFailureListener, SearchAdapter.PlaceClickListener {
 
-    private static final int REQUEST_LOCATION_CODE = 1001;
+
     private static final String TAG = MainActivity.class.getName();
     private AutocompleteFilter autocompleteFilter;
     private GeoDataClient geoDataClient;
@@ -57,45 +58,7 @@ public class MainActivity extends AppCompatActivity implements
 
         FragmentManager fm = getSupportFragmentManager();
 
-        FragmentPagerAdapter pagerAdapter = new FragmentPagerAdapter(fm) {
-            @Override
-            public Fragment getItem(int position) {
-
-                Fragment fragment = null;
-
-                switch (position) {
-                    case 0:
-                        fragment = getMapFragment();
-                        break;
-                    case 1:
-                        fragment = getListFragment();
-                        break;
-                }
-
-                return fragment;
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-
-                String title = null;
-
-                switch (position) {
-                    case 0:
-                        title = getString(R.string.map);
-                        break;
-                    case 1:
-                        title = getString(R.string.list);
-                        break;
-                }
-                return title;
-            }
-
-            @Override
-            public int getCount() {
-                return 2;
-            }
-        };
+        FragmentPagerAdapter pagerAdapter = new MyFragmentPagerAdapter(getApplicationContext(), fm);
 
         viewPager = findViewById(R.id.view_pager_main);
         viewPager.setAdapter(pagerAdapter);
@@ -105,48 +68,17 @@ public class MainActivity extends AppCompatActivity implements
 
         setupSearchRecycler();
 
-        LocationModel locationModel = ViewModelProviders.of(this).get(LocationModel.class);
-
-        new LocationHelper(this, getLifecycle(), this, locationModel);
-
         setupPlacesSearch();
     }
 
     private void setupSearchRecycler() {
         searchAdapter = new SearchAdapter();
+        searchAdapter.setListener(this);
 
         searchRecyclerView = findViewById(R.id.recycler_search_main);
         searchRecyclerView.setVisibility(View.GONE);
         searchRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         searchRecyclerView.setAdapter(searchAdapter);
-        searchAdapter.setListener(this);
-    }
-
-    private Fragment getListFragment() {
-        Fragment fragment =
-                getSupportFragmentManager().findFragmentByTag(LocationFragment.TAG);
-
-        if (fragment == null)
-            fragment = LocationFragment.newInstance(0);
-
-        return fragment;
-    }
-
-    private Fragment getMapFragment() {
-        Fragment fragment =
-                getSupportFragmentManager().findFragmentByTag(MapFragment.TAG);
-
-        if (fragment == null)
-            fragment = MapFragment.newInstance();
-
-        return fragment;
-    }
-
-    @Override
-    public void noLocationPermission() {
-        String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_LOCATION_CODE);
     }
 
     @Override
@@ -206,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onSuccess(AutocompletePredictionBufferResponse autocompletePredictions) {
-        if(DataBufferUtils.hasData(autocompletePredictions)) {
+        if (DataBufferUtils.hasData(autocompletePredictions)) {
 
             ArrayList<AutocompletePrediction> list =
                     DataBufferUtils.freezeAndClose(autocompletePredictions);
@@ -217,13 +149,34 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onFailure(@NonNull Exception e) {
-
+        Log.d(TAG, "onFailure: " + e.getMessage());
     }
 
     @Override
     public void onItemClick(AutocompletePrediction autocompletePrediction) {
-        searchView.setIconified(true);
-        hideSearch();
+
+        if (searchView.getQuery().length() == 0) {
+            searchView.setIconified(true);
+        } else {
+            searchView.setIconified(true);
+            searchView.setIconified(true);
+        }
+
+        geoDataClient
+                .getPlaceById(autocompletePrediction.getPlaceId())
+                .addOnSuccessListener(this, this::onPlaceFound);
+    }
+
+    public void onPlaceFound(PlaceBufferResponse response) {
+        if (!DataBufferUtils.hasData(response)) return;
+
+        ArrayList<Place> places = DataBufferUtils.freezeAndClose(response);
+
+        if (places.isEmpty()) return;
+
+        LocationInfo locationInfo = LocationInfo.of(places.get(0));
+        LocationModel model = ViewModelProviders.of(this).get(LocationModel.class);
+        model.setMapLocation(locationInfo);
     }
 
     private void hideSearch() {
@@ -234,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if(tabLayout.getVisibility() == View.VISIBLE) {
+        if (tabLayout.getVisibility() == View.VISIBLE) {
             super.onBackPressed();
         } else {
             searchView.setIconified(true);

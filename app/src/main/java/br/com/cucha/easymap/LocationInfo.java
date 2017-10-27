@@ -3,7 +3,11 @@ package br.com.cucha.easymap;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.location.Location;
 
+import com.google.android.gms.location.places.Place;
+
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -12,8 +16,8 @@ import java.util.Date;
 
 @Entity(tableName = "location")
 public class LocationInfo {
-//    @PrimaryKey(autoGenerate = true)
-//    private int uuid;
+    @PrimaryKey(autoGenerate = true)
+    private int uuid;
 
     @ColumnInfo(name = "lat")
     private String lat;
@@ -24,17 +28,27 @@ public class LocationInfo {
     @ColumnInfo(name = "accuracy")
     private String accuracy;
 
-    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "creation_date")
     private Date creationDate;
 
-//    public int getUuid() {
-//        return uuid;
-//    }
-//
-//    public void setUuid(int uuid) {
-//        this.uuid = uuid;
-//    }
+    @ColumnInfo(name = "name")
+    private String name;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(int uuid) {
+        this.uuid = uuid;
+    }
 
     public String getAccuracy() {
         return accuracy;
@@ -66,5 +80,28 @@ public class LocationInfo {
 
     public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public static LocationInfo of(Place place) {
+
+        if(place.getLatLng() == null || place.getName().length() == 0) return null;
+
+        LocationInfo locationInfo = new LocationInfo();
+        locationInfo.setLat(String.valueOf(place.getLatLng().latitude));
+        locationInfo.setLng(String.valueOf(place.getLatLng().longitude));
+        locationInfo.setName(String.valueOf(place.getName()));
+        locationInfo.setCreationDate(Calendar.getInstance().getTime());
+
+        return locationInfo;
+    }
+
+    public static LocationInfo of(Location location) {
+        LocationInfo locationInfo = new LocationInfo();
+        locationInfo.setLat(String.valueOf(location.getLatitude()));
+        locationInfo.setLng(String.valueOf(location.getLongitude()));
+        locationInfo.setAccuracy(String.valueOf(location.getAccuracy()));
+        locationInfo.setCreationDate(Calendar.getInstance().getTime());
+
+        return locationInfo;
     }
 }

@@ -59,7 +59,7 @@ public class LocationFragment extends Fragment implements Observer<List<Location
             }
 
             LocationModel model = ViewModelProviders.of(getActivity()).get(LocationModel.class);
-            model.getLocationList().observe(this, this);
+            model.getFavoriteList().observe(this, this);
 
             adapter = new MyLocationRecyclerViewAdapter(model);
             recyclerView.setAdapter(adapter);

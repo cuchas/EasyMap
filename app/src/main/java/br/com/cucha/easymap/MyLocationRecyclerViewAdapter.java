@@ -30,7 +30,7 @@ public class MyLocationRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        LocationInfo location = mModel.getLocationList().getValue().get(position);
+        LocationInfo location = mModel.getFavoriteList().getValue().get(position);
 
         holder.mItem = location;
 
@@ -46,7 +46,7 @@ public class MyLocationRecyclerViewAdapter extends
 
     @Override
     public int getItemCount() {
-        LiveData<List<LocationInfo>> locationList = mModel.getLocationList();
+        LiveData<List<LocationInfo>> locationList = mModel.getFavoriteList();
 
         return locationList.getValue() != null ? locationList.getValue().size() : 0;
     }

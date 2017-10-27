@@ -1,17 +1,14 @@
 package br.com.cucha.easymap;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.OnLifecycleEvent;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 
 /**
  * Created by eduardo on 10/3/17.
@@ -19,12 +16,11 @@ import android.support.v4.content.ContextCompat;
 
 public class LocationHelper implements LifecycleObserver, LocationListener {
 
-    private final LocationManager mLocationManager;
-    private final LocationCallback mCallback;
-    private final Context mContext;
-    private final Lifecycle mLifeCycle;
-    private static String finLocationPermission = Manifest.permission.ACCESS_FINE_LOCATION;
-    private final LocationViewModel mViewModel;
+    private final LocationManager locationManager;
+    private final LocationCallback callback;
+    private final Context context;
+    private final Lifecycle lifecycle;
+    private final LocationViewModel viewModel;
 
     interface LocationCallback {
         void noLocationPermission();
@@ -35,53 +31,56 @@ public class LocationHelper implements LifecycleObserver, LocationListener {
                           LocationCallback callback,
                           LocationViewModel viewModel) {
 
-        mContext = context;
-        mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-        mCallback = callback;
-        mViewModel = viewModel;
-        mLifeCycle = lifecycle;
-        mLifeCycle.addObserver(this);
+        this.context = context;
+        this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        this.callback = callback;
+        this.viewModel = viewModel;
+        this.lifecycle = lifecycle;
+        this.lifecycle.addObserver(this);
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     void start() {
-        int permission = ContextCompat.checkSelfPermission(mContext, finLocationPermission);
+        findCurrentLocation();
+    }
 
-        if(permission == PackageManager.PERMISSION_DENIED && mCallback != null) {
-            mCallback.noLocationPermission();
+    @SuppressLint("MissingPermission")
+    public void findCurrentLocation() {
+
+        if (!PermissionUtils.hasLocationPermission(context) && callback != null) {
+            callback.noLocationPermission();
             return;
         }
 
-        Location location = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        if(location == null)
+        if (location == null)
             return;
 
-        mViewModel.setLocation(location);
+        viewModel.setMapLocation(LocationInfo.of(location));
     }
 
     @SuppressLint("MissingPermission")
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     void resume() {
-        int permission = ContextCompat.checkSelfPermission(mContext, finLocationPermission);
-
-        if(permission == PackageManager.PERMISSION_GRANTED)
-            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, .1f, this);
+        if (PermissionUtils.hasLocationPermission(context))  {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, .1f, this);
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     void pause() {
-        mLocationManager.removeUpdates(this);
+        locationManager.removeUpdates(this);
     }
 
     @Override
     public void onLocationChanged(Location location) {
-        mViewModel.setLocation(location);
+        viewModel.setMapLocation(LocationInfo.of(location));
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     void destroy() {
-        mLifeCycle.removeObserver(this);
+        lifecycle.removeObserver(this);
     }
 
     @Override
