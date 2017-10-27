@@ -1,6 +1,5 @@
 package br.com.cucha.easymap;
 
-
 import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -9,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,15 +17,12 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class MapFragment extends Fragment implements
         OnMapReadyCallback,
-        LocationHelper.LocationCallback {
+        LocationHelper.LocationCallback, GoogleMap.InfoWindowAdapter {
 
     public static String TAG = MapFragment.class.getName();
     private GoogleMap googleMap;
@@ -59,6 +57,8 @@ public class MapFragment extends Fragment implements
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
+        googleMap.setInfoWindowAdapter(this);
+
         model.getMapLocation().observe(this, location -> {
 
             googleMap.clear();
@@ -75,6 +75,7 @@ public class MapFragment extends Fragment implements
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
+        markerOptions.title(location.getName());
 
         googleMap.addMarker(markerOptions);
 
@@ -97,5 +98,22 @@ public class MapFragment extends Fragment implements
         String[] permissions = new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
 
         ActivityCompat.requestPermissions(getActivity(), permissions, REQUEST_LOCATION_CODE);
+    }
+
+    @Override
+    public View getInfoWindow(Marker marker) {
+        return null;
+    }
+
+    @Override
+    public View getInfoContents(Marker marker) {
+
+        View view = getLayoutInflater().inflate(R.layout.view_favorite, null);
+        EditText editText = view.findViewById(R.id.edit_name_favorite);
+        ToggleButton button = view.findViewById(R.id.togglb_favorite);
+
+        editText.setText(marker.getTitle());
+
+        return view;
     }
 }

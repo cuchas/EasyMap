@@ -25,14 +25,22 @@ public class LocationInfo {
     @ColumnInfo(name = "lng")
     private String lng;
 
-    @ColumnInfo(name = "accuracy")
-    private String accuracy;
-
     @ColumnInfo(name = "creation_date")
     private Date creationDate;
 
     @ColumnInfo(name = "name")
     private String name;
+
+    @ColumnInfo(name = "id_on_google")
+    private String googleID;
+
+    public String getGoogleID() {
+        return googleID;
+    }
+
+    public void setGoogleID(String googleID) {
+        this.googleID = googleID;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -50,20 +58,12 @@ public class LocationInfo {
         this.uuid = uuid;
     }
 
-    public String getAccuracy() {
-        return accuracy;
-    }
-
     public String getLat() {
         return lat;
     }
 
     public String getLng() {
         return lng;
-    }
-
-    public void setAccuracy(String accuracy) {
-        this.accuracy = accuracy;
     }
 
     public void setLat(String lat) {
@@ -90,6 +90,7 @@ public class LocationInfo {
         locationInfo.setLat(String.valueOf(place.getLatLng().latitude));
         locationInfo.setLng(String.valueOf(place.getLatLng().longitude));
         locationInfo.setName(String.valueOf(place.getName()));
+        locationInfo.setGoogleID(place.getId());
         locationInfo.setCreationDate(Calendar.getInstance().getTime());
 
         return locationInfo;
@@ -99,7 +100,6 @@ public class LocationInfo {
         LocationInfo locationInfo = new LocationInfo();
         locationInfo.setLat(String.valueOf(location.getLatitude()));
         locationInfo.setLng(String.valueOf(location.getLongitude()));
-        locationInfo.setAccuracy(String.valueOf(location.getAccuracy()));
         locationInfo.setCreationDate(Calendar.getInstance().getTime());
 
         return locationInfo;
