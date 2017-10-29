@@ -17,13 +17,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <ImageView
-        android:layout_toRightOf="@id/edit_name_favorite"
-        android:layout_toEndOf="@id/edit_name_favorite"
-        android:layout_alignTop="@id/edit_name_favorite"
-        android:src="@drawable/ic_star_black_24dp"
-        android:id="@+id/image_favorite"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
 </RelativeLayout>

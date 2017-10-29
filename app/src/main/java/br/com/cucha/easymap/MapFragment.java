@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Calendar;
 
 public class MapFragment extends Fragment implements
         OnMapReadyCallback,
@@ -61,10 +64,35 @@ public class MapFragment extends Fragment implements
 
         googleMap.setInfoWindowAdapter(this);
         googleMap.setOnInfoWindowClickListener(m -> {
-            LocationInfo locationInfo = LocationInfo.of(m);
-            model.setFavoriteLocation(locationInfo);
 
-            m.showInfoWindow();
+            final EditText edit = (EditText) getLayoutInflater().inflate(R.layout.view_edit_favorite, null);
+            edit.setText(m.getTitle() != null ? m.getTitle() : "");
+
+            new AlertDialog.Builder(getContext())
+                    .setView(edit)
+                    .setPositiveButton(getString(android.R.string.ok), (d, i) -> {
+
+                        if(edit.getText().length() == 0) {
+                            edit.setError(getString(R.string.set_name));
+                            return;
+                        }
+
+                        LocationInfo locationInfo = LocationInfo.of(m);
+                        locationInfo.setName(edit.getText().toString());
+                        locationInfo.setCreationDate(Calendar.getInstance().getTime());
+
+                        model.setFavoriteLocation(locationInfo);
+
+                        m.setTitle(edit.getText().toString());
+
+                        d.dismiss();
+
+                    })
+                    .setNegativeButton(getString(android.R.string.cancel), (d, i) -> {
+                        d.dismiss();
+
+                    }).create()
+            .show();
         });
 
         model.getMapLocation().observe(this, location -> {
@@ -78,12 +106,13 @@ public class MapFragment extends Fragment implements
     private void showOnMap(LocationInfo location) {
         double lat = Double.parseDouble(location.getLat());
         double lng = Double.parseDouble(location.getLng());
-
         LatLng latLng = new LatLng(lat, lng);
 
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
-        markerOptions.title(location.getName());
+
+        if(!StringUtils.isNullOrEmpty(location.getName()))
+            markerOptions.title(location.getName());
 
         Marker marker = googleMap.addMarker(markerOptions);
         marker.setTag(location.getGoogleID());
@@ -118,10 +147,7 @@ public class MapFragment extends Fragment implements
     public View getInfoContents(final Marker marker) {
         View view = getLayoutInflater().inflate(R.layout.view_favorite, null);
         TextView textView = view.findViewById(R.id.edit_name_favorite);
-        textView.setText(marker.getTitle());
-
-        ImageView imageView = view.findViewById(R.id.image_favorite);
-        imageView.setVisibility(View.GONE);
+        textView.setText(marker.getTitle() != null ? marker.getTitle() : "");
 
         return view;
     }
