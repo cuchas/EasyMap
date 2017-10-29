@@ -2,10 +2,14 @@ package br.com.cucha.easymap;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.util.StringUtil;
 import android.location.Location;
 
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -103,5 +107,25 @@ public class LocationInfo {
         locationInfo.setCreationDate(Calendar.getInstance().getTime());
 
         return locationInfo;
+    }
+
+    public static LocationInfo of(Marker marker) {
+        LocationInfo locationInfo = new LocationInfo();
+        LatLng position = marker.getPosition();
+        locationInfo.setLat(String.valueOf(position.latitude));
+        locationInfo.setLng(String.valueOf(position.longitude));
+        locationInfo.setName(String.valueOf(marker.getTitle()));
+        locationInfo.setGoogleID(String.valueOf(marker.getTag()));
+        locationInfo.setCreationDate(Calendar.getInstance().getTime());
+
+        return locationInfo;
+    }
+
+    @Ignore
+    public boolean isValid() {
+        return !StringUtils.isNullOrEmpty(name) &&
+                !StringUtils.isNullOrEmpty(lat) &&
+                !StringUtils.isNullOrEmpty(lng) &&
+                creationDate != null;
     }
 }

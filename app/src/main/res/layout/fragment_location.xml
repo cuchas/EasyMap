@@ -1,28 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:background="?selectableItemBackground"
+    android:paddingTop="@dimen/grid"
+    android:paddingBottom="@dimen/grid"
+    android:paddingLeft="@dimen/grid"
+    android:paddingStart="@dimen/grid"
+    android:paddingRight="@dimen/grid"
+    android:paddingEnd="@dimen/grid">
 
     <TextView
-        android:id="@+id/id"
+        android:id="@+id/text_label_name"
+        android:text="@string/name"
+        android:layout_marginRight="@dimen/grid"
+        android:layout_marginEnd="@dimen/grid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
+        android:layout_alignTop="@id/text_label_name"
+        android:layout_toRightOf="@id/text_label_name"
+        android:layout_toEndOf="@id/text_label_name"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
-        android:id="@+id/content"
+        android:layout_alignStart="@id/text_label_name"
+        android:layout_alignLeft="@id/text_label_name"
+        android:layout_below="@id/text_label_name"
+        android:layout_marginRight="@dimen/grid"
+        android:layout_marginEnd="@dimen/grid"
+        android:id="@+id/text_label_lat"
+        android:text="@string/lat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text_lat"
+        android:layout_alignTop="@id/text_label_lat"
+        android:layout_toRightOf="@id/text_label_lat"
+        android:layout_toEndOf="@id/text_label_lat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
-        android:id="@+id/date"
+        android:id="@+id/text_label_lng"
+        android:layout_alignStart="@id/text_label_name"
+        android:layout_alignLeft="@id/text_label_name"
+        android:layout_below="@id/text_label_lat"
+        android:layout_marginRight="@dimen/grid"
+        android:layout_marginEnd="@dimen/grid"
+        android:text="@string/lng"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text_lng"
+        android:layout_alignTop="@id/text_label_lng"
+        android:layout_toRightOf="@id/text_label_lng"
+        android:layout_toEndOf="@id/text_label_lng"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
         android:textAppearance="?attr/textAppearanceListItem" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/text_label_date"
+        android:layout_alignStart="@id/text_label_name"
+        android:layout_alignLeft="@id/text_label_name"
+        android:layout_below="@id/text_label_lng"
+        android:layout_marginRight="@dimen/grid"
+        android:layout_marginEnd="@dimen/grid"
+        android:text="@string/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/text_date"
+        android:layout_alignTop="@id/text_label_date"
+        android:layout_toRightOf="@id/text_label_date"
+        android:layout_toEndOf="@id/text_label_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+</RelativeLayout>

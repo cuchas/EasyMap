@@ -13,6 +13,7 @@ import java.util.List;
 
 public class LocationViewModel extends AndroidViewModel {
     private final LocationDB db;
+    private final PrefsHelper prefsHelper;
     private LiveData<List<LocationInfo>> favoriteList = new MutableLiveData<>();
     private MutableLiveData<LocationInfo> mapLocation = new MutableLiveData<>();
 
@@ -22,6 +23,14 @@ public class LocationViewModel extends AndroidViewModel {
         db = DBHelper.getDBInstance(application);
 
         favoriteList = db.locationInfoDAO().getLocationList();
+
+        prefsHelper = new PrefsHelper(application);
+
+
+        LocationInfo lastLocation = prefsHelper.getLastLocation();
+
+        if(lastLocation != null)
+            mapLocation.postValue(lastLocation);
     }
 
     public LiveData<List<LocationInfo>> getFavoriteList() {
@@ -30,6 +39,8 @@ public class LocationViewModel extends AndroidViewModel {
 
     public void setMapLocation(LocationInfo location) {
         mapLocation.setValue(location);
+
+        prefsHelper.setLastLocation(location);
     }
 
     public LiveData<LocationInfo> getMapLocation() {
@@ -38,8 +49,10 @@ public class LocationViewModel extends AndroidViewModel {
 
     public void setFavoriteLocation(LocationInfo locationInfo) {
 
-        Runnable runnable = () -> db.locationInfoDAO().insert(locationInfo);
+        if(locationInfo.isValid()) {
+            Runnable runnable = () -> db.locationInfoDAO().insert(locationInfo);
 
-        new Thread(runnable).start();
+            new Thread(runnable).start();
+        }
     }
 }

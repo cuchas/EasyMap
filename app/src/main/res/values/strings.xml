@@ -10,4 +10,9 @@
     <string name="close">close</string>
     <string name="search">Buscar</string>
     <string name="search_list_fragment" translatable="false">searchListFragment</string>
+    <string name="touch_for_favorite_it">Toque para favoritar</string>
+    <string name="lat">Lat:</string>
+    <string name="lng">Lng:</string>
+    <string name="date">Date</string>
+    <string name="name">Nome:</string>
 </resources>

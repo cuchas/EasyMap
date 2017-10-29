@@ -64,6 +64,11 @@ public class MainActivity extends AppCompatActivity implements
         tabLayout = findViewById(R.id.tabl_main);
         tabLayout.setupWithViewPager(viewPager);
 
+        LocationViewModel model = ViewModelProviders.of(this).get(LocationModel.class);
+        model.getMapLocation().observe(this, locationInfo -> {
+            showMap();
+        });
+
         setupSearchRecycler();
 
         setupPlacesSearch();
@@ -96,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements
 
     private boolean onSearchClose() {
         hideSearch();
+        showMap();
 
         return false;
     }
@@ -181,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements
         searchRecyclerView.setVisibility(View.GONE);
         tabLayout.setVisibility(View.VISIBLE);
         viewPager.setVisibility(View.VISIBLE);
+    }
+
+    private void showMap() {
+        viewPager.setCurrentItem(0);
     }
 
     @Override

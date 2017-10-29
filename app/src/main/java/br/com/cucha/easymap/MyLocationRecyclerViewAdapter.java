@@ -13,12 +13,12 @@ import java.util.List;
 public class MyLocationRecyclerViewAdapter extends
         RecyclerView.Adapter<MyLocationRecyclerViewAdapter.ViewHolder> {
 
-    private final LocationModel mModel;
-    private final SimpleDateFormat mDateFormat;
+    private final LocationModel model;
+    private final SimpleDateFormat dateFormat;
 
     public MyLocationRecyclerViewAdapter(LocationModel model) {
-        mModel = model;
-        mDateFormat = new SimpleDateFormat();
+        this.model = model;
+        dateFormat = new SimpleDateFormat();
     }
 
     @Override
@@ -30,45 +30,46 @@ public class MyLocationRecyclerViewAdapter extends
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        LocationInfo location = mModel.getFavoriteList().getValue().get(position);
+        LocationInfo location = model.getFavoriteList().getValue().get(position);
 
-        holder.mItem = location;
+        holder.locationInfo = location;
+        holder.textName.setText(location.getName());
+        holder.textLat.setText(location.getLat());
+        holder.textLng.setText(location.getLng());
+        holder.textDate.setText(dateFormat.format(location.getCreationDate()));
 
-        holder.mIdView.setText(location.getLat());
-
-        holder.mContentView.setText(location.getLng());
-
-        holder.dateView.setText(mDateFormat.format(location.getCreationDate()));
-
-        holder.mView.setOnClickListener(v -> {
+        holder.view.setOnClickListener(v -> {
+            model.setMapLocation(holder.locationInfo);
         });
     }
 
     @Override
     public int getItemCount() {
-        LiveData<List<LocationInfo>> locationList = mModel.getFavoriteList();
+        LiveData<List<LocationInfo>> locationList = model.getFavoriteList();
 
         return locationList.getValue() != null ? locationList.getValue().size() : 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mIdView;
-        public final TextView mContentView;
-        public final TextView dateView;
-        public LocationInfo mItem;
+        public final View view;
+        public final TextView textName;
+        public final TextView textLat;
+        public final TextView textDate;
+        public final TextView textLng;
+        public LocationInfo locationInfo;
 
         public ViewHolder(View view) {
             super(view);
-            mView = view;
-            mIdView = view.findViewById(R.id.id);
-            mContentView = view.findViewById(R.id.content);
-            dateView = view.findViewById(R.id.date);
+            this.view = view;
+            textName = view.findViewById(R.id.text_name);
+            textLat = view.findViewById(R.id.text_lat);
+            textLng = view.findViewById(R.id.text_lng);
+            textDate = view.findViewById(R.id.text_date);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + textLat.getText() + "'";
         }
     }
 }

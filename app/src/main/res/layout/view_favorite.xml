@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <EditText
+    <TextView
         android:id="@+id/edit_name_favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <ToggleButton
-        android:id="@+id/togglb_favorite"
+    <TextView
+        android:layout_alignStart="@id/edit_name_favorite"
+        android:layout_alignLeft="@id/edit_name_favorite"
+        android:layout_below="@id/edit_name_favorite"
+        android:text="@string/touch_for_favorite_it"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-</LinearLayout>
+    <ImageView
+        android:layout_toRightOf="@id/edit_name_favorite"
+        android:layout_toEndOf="@id/edit_name_favorite"
+        android:layout_alignTop="@id/edit_name_favorite"
+        android:src="@drawable/ic_star_black_24dp"
+        android:id="@+id/image_favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

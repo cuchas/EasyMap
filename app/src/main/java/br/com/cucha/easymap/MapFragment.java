@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -58,6 +60,12 @@ public class MapFragment extends Fragment implements
         this.googleMap = googleMap;
 
         googleMap.setInfoWindowAdapter(this);
+        googleMap.setOnInfoWindowClickListener(m -> {
+            LocationInfo locationInfo = LocationInfo.of(m);
+            model.setFavoriteLocation(locationInfo);
+
+            m.showInfoWindow();
+        });
 
         model.getMapLocation().observe(this, location -> {
 
@@ -77,7 +85,8 @@ public class MapFragment extends Fragment implements
         markerOptions.position(latLng);
         markerOptions.title(location.getName());
 
-        googleMap.addMarker(markerOptions);
+        Marker marker = googleMap.addMarker(markerOptions);
+        marker.setTag(location.getGoogleID());
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
         googleMap.moveCamera(cameraUpdate);
@@ -106,13 +115,13 @@ public class MapFragment extends Fragment implements
     }
 
     @Override
-    public View getInfoContents(Marker marker) {
-
+    public View getInfoContents(final Marker marker) {
         View view = getLayoutInflater().inflate(R.layout.view_favorite, null);
-        EditText editText = view.findViewById(R.id.edit_name_favorite);
-        ToggleButton button = view.findViewById(R.id.togglb_favorite);
+        TextView textView = view.findViewById(R.id.edit_name_favorite);
+        textView.setText(marker.getTitle());
 
-        editText.setText(marker.getTitle());
+        ImageView imageView = view.findViewById(R.id.image_favorite);
+        imageView.setVisibility(View.GONE);
 
         return view;
     }

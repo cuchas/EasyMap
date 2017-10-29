@@ -21,6 +21,7 @@ public class LocationHelper implements LifecycleObserver, LocationListener {
     private final Context context;
     private final Lifecycle lifecycle;
     private final LocationViewModel viewModel;
+    private Location lastLocation;
 
     interface LocationCallback {
         void noLocationPermission();
@@ -41,7 +42,6 @@ public class LocationHelper implements LifecycleObserver, LocationListener {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     void start() {
-        findCurrentLocation();
     }
 
     @SuppressLint("MissingPermission")
@@ -57,7 +57,9 @@ public class LocationHelper implements LifecycleObserver, LocationListener {
         if (location == null)
             return;
 
-        viewModel.setMapLocation(LocationInfo.of(location));
+        lastLocation = location;
+
+        viewModel.setMapLocation(LocationInfo.of(lastLocation));
     }
 
     @SuppressLint("MissingPermission")
@@ -75,7 +77,7 @@ public class LocationHelper implements LifecycleObserver, LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-        viewModel.setMapLocation(LocationInfo.of(location));
+        lastLocation = location;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
