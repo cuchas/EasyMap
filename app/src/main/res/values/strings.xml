@@ -15,4 +15,6 @@
     <string name="lng">Lng:</string>
     <string name="date">Date</string>
     <string name="name">Nome:</string>
+    <string name="remove_favorite">Remover Favorito</string>
+    <string name="are_you_sure_you_want_remove_">Deseja excluir este item?</string>
 </resources>

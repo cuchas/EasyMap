@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setupPlacesSearch() {
         autocompleteFilter = new AutocompleteFilter.Builder()
-                .setTypeFilter(AutocompleteFilter.TYPE_FILTER_ADDRESS)
                 .build();
 
         geoDataClient = Places.getGeoDataClient(this, null);

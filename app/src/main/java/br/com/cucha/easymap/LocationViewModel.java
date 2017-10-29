@@ -55,4 +55,10 @@ public class LocationViewModel extends AndroidViewModel {
             new Thread(runnable).start();
         }
     }
+
+    public void deleteFavorite(LocationInfo location) {
+        Runnable runnable = () -> db.locationInfoDAO().deleteLocation(location);
+
+        new Thread(runnable).start();
+    }
 }

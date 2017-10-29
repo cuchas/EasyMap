@@ -1,6 +1,9 @@
 package br.com.cucha.easymap;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,16 +34,8 @@ public class MyLocationRecyclerViewAdapter extends
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         LocationInfo location = model.getFavoriteList().getValue().get(position);
-
-        holder.locationInfo = location;
-        holder.textName.setText(location.getName());
-        holder.textLat.setText(location.getLat());
-        holder.textLng.setText(location.getLng());
-        holder.textDate.setText(dateFormat.format(location.getCreationDate()));
-
-        holder.view.setOnClickListener(v -> {
-            model.setMapLocation(holder.locationInfo);
-        });
+        
+        holder.bind(location);
     }
 
     @Override
@@ -51,12 +46,12 @@ public class MyLocationRecyclerViewAdapter extends
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View view;
-        public final TextView textName;
-        public final TextView textLat;
-        public final TextView textDate;
-        public final TextView textLng;
-        public LocationInfo locationInfo;
+        final View view;
+        final TextView textName;
+        final TextView textLat;
+        final TextView textDate;
+        final TextView textLng;
+        LocationInfo locationInfo;
 
         public ViewHolder(View view) {
             super(view);
@@ -70,6 +65,35 @@ public class MyLocationRecyclerViewAdapter extends
         @Override
         public String toString() {
             return super.toString() + " '" + textLat.getText() + "'";
+        }
+
+        public void bind(LocationInfo location) {
+            locationInfo = location;
+            textName.setText(location.getName());
+            textLat.setText(location.getLat());
+            textLng.setText(location.getLng());
+            textDate.setText(dateFormat.format(location.getCreationDate()));
+
+            view.setOnClickListener(v -> {
+                model.setMapLocation(locationInfo);
+            });
+
+            view.setOnLongClickListener(v -> {
+                Context context = v.getContext();
+
+                new AlertDialog.Builder(context)
+                        .setTitle(context.getString(R.string.remove_favorite))
+                        .setMessage(context.getString(R.string.are_you_sure_you_want_remove_))
+                        .setPositiveButton(context.getString(android.R.string.yes), (dialogInterface, i) -> {
+                            model.deleteFavorite(location);
+                        })
+                        .setNegativeButton(context.getString(android.R.string.cancel), (dialog, i) -> {
+                            dialog.dismiss();
+                        }).create()
+                        .show();
+
+                return true;
+            });
         }
     }
 }
